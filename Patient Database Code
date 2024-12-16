@@ -1,0 +1,71 @@
+import datetime
+import json
+
+class HealthRelayAI:
+    def __init__(self):
+        self.patient_data = {
+            "name": None,
+            "age": None,
+            "symptoms": [],
+            "vitals": {
+                "heart_rate": None,
+                "blood_pressure": None,
+                "temperature": None
+            },
+            "notes": ""
+        }
+
+    def input_patient_info(self):
+        print("Collecting patient information...")
+        self.patient_data["name"] = input("Enter patient name: ")
+        self.patient_data["age"] = input("Enter patient age: ")
+
+    def collect_symptoms(self):
+        print("Recording symptoms. Type 'done' when finished.")
+        while True:
+            symptom = input("Enter a symptom: ")
+            if symptom.lower() == 'done':
+                break
+            self.patient_data["symptoms"].append(symptom)
+
+    def record_vitals(self):
+        print("Recording vitals...")
+        try:
+            self.patient_data["vitals"]["heart_rate"] = int(input("Enter heart rate (bpm): "))
+            self.patient_data["vitals"]["blood_pressure"] = input("Enter blood pressure (e.g., 120/80): ")
+            self.patient_data["vitals"]["temperature"] = float(input("Enter temperature (°C): "))
+        except ValueError:
+            print("Invalid input. Please ensure values are entered correctly.")
+
+    def add_notes(self):
+        print("Adding additional notes...")
+        self.patient_data["notes"] = input("Enter any additional notes: ")
+
+    def summarize_patient_data(self):
+        print("Summarizing patient data...")
+        summary = {
+            "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Patient": self.patient_data["name"],
+            "Age": self.patient_data["age"],
+            "Symptoms": self.patient_data["symptoms"],
+            "Vitals": self.patient_data["vitals"],
+            "Notes": self.patient_data["notes"]
+        }
+        return summary
+
+    def relay_to_doctor(self):
+        summary = self.summarize_patient_data()
+        print("Relaying information to the doctor...")
+        print(json.dumps(summary, indent=4))
+
+    def run(self):
+        print("Welcome to the Health Relay AI.")
+        self.input_patient_info()
+        self.collect_symptoms()
+        self.record_vitals()
+        self.add_notes()
+        self.relay_to_doctor()
+
+if __name__ == "__main__":
+    ai = HealthRelayAI()
+    ai.run()
