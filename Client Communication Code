@@ -1,0 +1,71 @@
+import speech_recognition as sr
+import pyttsx3
+import random
+
+class HealthAssistantAI:
+    def __init__(self):
+        self.engine = pyttsx3.init()
+        self.recognizer = sr.Recognizer()
+        self.questions = [
+            "How are you feeling today?",
+            "Have you experienced any headaches recently?",
+            "Are you drinking enough water every day?",
+            "How many hours of sleep do you usually get?",
+            "Have you been feeling stressed or anxious?",
+            "Do you engage in regular physical activity?",
+            "Are you experiencing any unusual pain or discomfort?",
+            "When was the last time you visited a doctor?",
+            "Are you taking any medications currently?",
+            "How would you rate your overall health on a scale of 1 to 10?"
+        ]
+
+    def speak(self, text):
+        self.engine.say(text)
+        self.engine.runAndWait()
+
+    def listen(self):
+        with sr.Microphone() as source:
+            print("Listening...")
+            audio = self.recognizer.listen(source)
+            try:
+                response = self.recognizer.recognize_google(audio)
+                print(f"You said: {response}")
+                return response
+            except sr.UnknownValueError:
+                print("Sorry, I didn't catch that.")
+                return None
+            except sr.RequestError as e:
+                print(f"Error with speech recognition service: {e}")
+                return None
+
+    def ask_question(self):
+        question = random.choice(self.questions)
+        self.speak(question)
+        print(f"AI: {question}")
+
+    def process_response(self, response):
+        if not response:
+            self.speak("Could you please repeat that?")
+            return
+
+        keywords = ["headache", "water", "sleep", "stress", "exercise", "pain", "doctor", "medication", "health"]
+        for keyword in keywords:
+            if keyword in response.lower():
+                self.speak(f"Thank you for sharing about {keyword}. I will take note of that.")
+                return
+
+        self.speak("Thank you for your response. Let's move to the next question.")
+
+    def run(self):
+        self.speak("Hello! I am your health assistant AI. I would like to ask you some health-related questions.")
+        print("AI: Hello! I am your health assistant AI. I would like to ask you some health-related questions.")
+        for _ in range(5):
+            self.ask_question()
+            user_response = self.listen()
+            self.process_response(user_response)
+        self.speak("Thank you for your time. Take care of your health and have a great day!")
+        print("AI: Thank you for your time. Take care of your health and have a great day!")
+
+if __name__ == "__main__":
+    ai = HealthAssistantAI()
+    ai.run()
