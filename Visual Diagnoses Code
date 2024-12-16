@@ -1,0 +1,99 @@
+import cv2
+import numpy as np
+import tensorflow as tf
+from datetime import datetime
+
+class VisualDiagnosticAI:
+    def __init__(self):
+        print("Initializing Visual Diagnostic AI...")
+        self.model = self.load_model()
+        self.symptom_database = {
+            "pallor": "Anemia or low blood oxygen levels",
+            "jaundice": "Possible liver dysfunction or bile duct obstruction",
+            "cyanosis": "Low oxygen levels in the blood",
+            "rash": "Possible allergic reaction or skin condition",
+            "swelling": "Inflammation, fluid retention, or infection",
+            "irregular movements": "Neurological issues such as seizures or tremors"
+        }
+
+    def load_model(self):
+        print("Loading pre-trained diagnostic model...")
+        # Placeholder for actual model loading
+        # For realism: Simulating loading a CNN model for visual diagnostics
+        model = tf.keras.models.Sequential([
+            tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(128, activation='relu'),
+            tf.keras.layers.Dense(len(self.symptom_database), activation='softmax')
+        ])
+        print("Model successfully loaded.")
+        return model
+
+    def capture_video(self):
+        print("Starting video stream for live diagnostics...")
+        cap = cv2.VideoCapture(0)
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("Error: Unable to read from camera.")
+                break
+
+            processed_frame = self.preprocess_frame(frame)
+            diagnosis = self.analyze_frame(processed_frame)
+
+            self.display_diagnosis(frame, diagnosis)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+
+    def preprocess_frame(self, frame):
+        print("Preprocessing video frame for analysis...")
+        resized_frame = cv2.resize(frame, (224, 224))
+        normalized_frame = resized_frame / 255.0
+        return np.expand_dims(normalized_frame, axis=0)
+
+    def analyze_frame(self, frame):
+        print("Analyzing frame for symptoms...")
+        predictions = self.model.predict(frame)
+        prediction_idx = np.argmax(predictions)
+        symptom = list(self.symptom_database.keys())[prediction_idx]
+        diagnosis = self.symptom_database[symptom]
+        print(f"Detected symptom: {symptom}, Diagnosis: {diagnosis}")
+        return symptom, diagnosis
+
+    def display_diagnosis(self, frame, diagnosis):
+        print("Displaying diagnosis on video feed...")
+        symptom, diagnosis_text = diagnosis
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        overlay_text = f"Symptom: {symptom} | Diagnosis: {diagnosis_text} | Time: {timestamp}"
+        cv2.putText(frame, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+
+        cv2.imshow("Visual Diagnostic AI", frame)
+
+    def save_report(self, diagnosis):
+        print("Saving diagnostic report...")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        report = {
+            "timestamp": timestamp,
+            "symptom": diagnosis[0],
+            "diagnosis": diagnosis[1]
+        }
+        with open("diagnostic_report.json", "w") as report_file:
+            json.dump(report, report_file, indent=4)
+        print("Diagnostic report saved successfully.")
+
+    def run(self):
+        print("Launching AI for visual diagnostics.")
+        self.capture_video()
+        print("Shutting down Visual Diagnostic AI.")
+
+if __name__ == "__main__":
+    ai = VisualDiagnosticAI()
+    ai.run()
