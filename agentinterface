@@ -1,0 +1,50 @@
+import copy
+
+class AI_Agent:
+    def __init__(self, name="Agent", purpose="General"):
+        self.name = name
+        self.purpose = purpose
+
+    def introduce(self):
+        return f"Hello, I am {self.name}, and my purpose is {self.purpose}."
+
+    def create_agent(self, name, purpose):
+        """
+        Creates a new sub-agent with a specific name and purpose.
+        """
+        print(f"{self.name} is creating a new agent: {name} with the purpose: {purpose}")
+        return AI_Agent(name=name, purpose=purpose)
+
+    def delegate_task(self, task, sub_agent):
+        """
+        Delegates a task to a sub-agent.
+        """
+        print(f"{self.name} is delegating the task '{task}' to {sub_agent.name}.")
+        response = sub_agent.perform_task(task)
+        return response
+
+    def perform_task(self, task):
+        """
+        Placeholder for performing a task.
+        """
+        return f"{self.name} is performing the task: {task}."
+
+# Main AI Agent
+if __name__ == "__main__":
+    main_agent = AI_Agent(name="MainAI", purpose="Manage Sub-Agents")
+
+    # Create sub-agents
+    research_agent = main_agent.create_agent(name="ResearchBot", purpose="Conduct Research")
+    support_agent = main_agent.create_agent(name="SupportBot", purpose="Provide Technical Support")
+
+    # Introduce the agents
+    print(main_agent.introduce())
+    print(research_agent.introduce())
+    print(support_agent.introduce())
+
+    # Delegate tasks
+    task_result = main_agent.delegate_task("Analyze market trends", research_agent)
+    print(task_result)
+
+    task_result = main_agent.delegate_task("Resolve a user issue", support_agent)
+    print(task_result)
